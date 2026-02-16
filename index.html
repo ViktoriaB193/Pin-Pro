@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8"/>
-    <title>РАССКРАСКА ПО ОТВЕТАМ — ULTIMATE 6.0</title>
+    <title>РАССКРАСКА ПО ОТВЕТАМ — ULTIMATE PRO</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Kelly+Slab&family=Lobster&family=Montserrat:wght@900&family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -22,22 +22,19 @@
         .btn:hover { transform: translateY(-1px); filter: brightness(1.2); }
         .btn-add { background: #22c55e; color: white; }
 
-        /* Список задач */
-        #taskList { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-        .task-item { padding: 10px; background: #1e293b; border-radius: 8px; border: 2px solid transparent; cursor: pointer; position: relative; font-size: 13px; }
-        .task-item.active { border-color: var(--primary); background: #2d3748; }
-        .task-item:hover { background: #252f44; }
-        .task-item .badge { float: right; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold; }
-        .task-item .del { color: #ff4d4d; margin-left: 10px; float: right; }
+        #taskList { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; min-height: 100px; }
+        .task-item { padding: 10px; background: #1e293b; border-radius: 8px; border: 2px solid transparent; cursor: pointer; position: relative; font-size: 13px; transition: 0.3s; }
+        .task-item.active { border-color: var(--primary); background: #2d3748; box-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
+        .task-item .badge { float: right; background: var(--accent); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        .task-item .del { color: #ff4d4d; margin-left: 10px; float: right; cursor: pointer; font-weight: bold; }
 
-        /* Холст */
         .canvas-area { position: relative; background: radial-gradient(circle, #1e293b 0%, #020617 100%); display: flex; justify-content: center; align-items: center; padding: 20px; }
         .frame { position: relative; border: 3px solid var(--primary); border-radius: 8px; background: white; line-height: 0; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        #mainImg { max-width: 100%; max-height: 70vh; display: block; pointer-events: none; }
+        #mainImg { max-width: 100%; max-height: 70vh; display: block; user-select: none; -webkit-user-drag: none; }
         #mainSvg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
 
         #preview-box { position: absolute; inset: 0; background: var(--bg); z-index: 1000; display: none; }
-        .hint-bar { font-size: 10px; color: #888; margin-top: 4px; }
+        .hint-bar { font-size: 10px; color: #aaa; margin-top: 4px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -45,16 +42,17 @@
 <div class="sidebar">
     <div class="header-main">
         <img src="https://i.ibb.co/q345VSpm/5291888536539828600.jpg" height="35" style="border-radius:50%">
-        <h1>ULTIMATE CONSTRUCTOR 6.0</h1>
+        <h1>ULTIMATE BUILDER PRO</h1>
     </div>
 
     <div class="section">
-        <h3>1. Стиль оформления</h3>
+        <h3>1. Картинка и Шрифт</h3>
         <select id="imgPreset" onchange="loadPreset()">
             <option value="">-- Выбрать шаблон --</option>
             <option value="https://i.ibb.co/jvj9q36b/c8fae767598537c00255e117f9b1199b.jpg">Милый единорог</option>
             <option value="https://i.ibb.co/GqxzQ5c/2026-02-16-234253.png">Мудрая Сова</option>
             <option value="https://i.ibb.co/XZfDj366/2026-02-16-234445.png">Барбоскины</option>
+            <option value="https://i.ibb.co/ch9R8Lbd/Avatar-Jake-Sully-and-Neytiri.png">Аватар</option>
         </select>
         <input type="file" id="fileInp" accept="image/*">
         <select id="fontFamily">
@@ -71,44 +69,41 @@
     </div>
 
     <div class="section">
-        <h3>2. Добавление заданий</h3>
-        <div id="singleInput">
-            <input type="text" id="oneQ" placeholder="Пример (напр. 5+5)">
-            <input type="text" id="oneA" placeholder="Ответ (напр. 10)">
-            <button class="btn btn-add" onclick="addSingle()">+ Добавить в список</button>
-        </div>
-        <div style="text-align:center; margin: 8px 0; font-size: 10px; color: var(--accent);">— ИЛИ —</div>
-        <textarea id="bulkTasks" style="height: 60px;" placeholder="Пример1=Ответ1&#10;Пример2=Ответ2"></textarea>
+        <h3>2. Задания</h3>
+        <input type="text" id="oneQ" placeholder="Пример (5+5)">
+        <input type="text" id="oneA" placeholder="Ответ (10)">
+        <button class="btn btn-add" onclick="addSingle()">+ Добавить</button>
+        <div style="text-align:center; margin: 8px 0; font-size: 9px; color: #666;">ЛИБО СПИСКОМ (Пример=Ответ)</div>
+        <textarea id="bulkTasks" style="height: 50px;" placeholder="2+2=4&#10;3+3=6"></textarea>
         <button class="btn" style="background:#475569; color:white;" onclick="importBulk()">Импортировать список</button>
     </div>
 
-    <h3>3. Привязка областей</h3>
+    <h3>3. Привязка к картинке</h3>
     <div id="taskList"></div>
 
-    <div class="section" id="areaControls" style="display:none; border: 1px solid var(--primary); background: rgba(192, 132, 252, 0.05);">
-        <h4 id="activeTaskTitle" style="margin:0 0 8px; font-size:12px; color: var(--primary);">Редактирование: </h4>
+    <div class="section" id="areaControls" style="display:none; border: 1px solid var(--primary);">
+        <h4 id="activeTaskTitle" style="margin:0 0 8px; font-size:11px; color: var(--primary);"></h4>
         <div style="display:flex; gap:5px;">
             <input type="color" id="taskColor" value="#ff4d6d" style="width:50px; height:38px;">
-            <button class="btn" onclick="saveArea()">ПРИКРЕПИТЬ ОБЛАСТЬ</button>
+            <button class="btn" onclick="saveArea()">СОХРАНИТЬ ОБЛАСТЬ</button>
         </div>
-        <div class="hint-bar">Кликайте по картинке, чтобы обвести деталь, затем нажмите кнопку выше.</div>
-        <button class="btn" style="background:none; color:#ff4d4d; font-size:10px; margin-top:5px;" onclick="points=[]; draw();">Сбросить текущий контур</button>
+        <div class="hint-bar">Кликайте по картинке, чтобы создать контур. Можно добавить несколько областей к одной задаче.</div>
+        <button class="btn" style="background:none; color:#ff4d4d; font-size:10px;" onclick="points=[]; draw();">Сбросить точки</button>
     </div>
 
     <div class="section">
         <button class="btn" style="background:var(--accent)" onclick="generateGame()">СГЕНЕРИРОВАТЬ ИГРУ</button>
-        <textarea id="finalCode" style="height:35px; font-size:8px; margin-top:5px;" readonly placeholder="Код появится здесь..."></textarea>
+        <textarea id="finalCode" style="height:35px; font-size:8px; margin-top:5px;" readonly placeholder="Код для Genially..."></textarea>
     </div>
 </div>
 
 <div class="canvas-area">
     <div id="preview-box">
-        <button onclick="document.getElementById('preview-box').style.display='none'" style="position:absolute; top:15px; right:15px; z-index:2000; background:#ff4d4d; color:white; border:0; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:bold;">ЗАКРЫТЬ ПРЕДПРОСМОТР</button>
+        <button onclick="document.getElementById('preview-box').style.display='none'" style="position:absolute; top:15px; right:15px; z-index:2000; background:#ff4d4d; color:white; border:0; padding:12px 25px; border-radius:8px; cursor:pointer;">ЗАКРЫТЬ</button>
         <iframe id="preview-iframe" style="width:100%; height:100%; border:0;"></iframe>
     </div>
-
     <div class="frame">
-        <img id="mainImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" crossorigin="anonymous">
+        <img id="mainImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
         <svg id="mainSvg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
     </div>
 </div>
@@ -145,7 +140,8 @@
         const a = document.getElementById('oneA').value;
         if(!q || !a) return;
         tasks.push({ q, a, color: '#ff4d6d', areas: [] });
-        document.getElementById('oneQ').value = ''; document.getElementById('oneA').value = '';
+        document.getElementById('oneQ').value = ''; 
+        document.getElementById('oneA').value = '';
         updateList();
     }
 
@@ -165,7 +161,7 @@
         const container = document.getElementById('taskList');
         container.innerHTML = tasks.map((t, i) => `
             <div class="task-item ${i === activeIdx ? 'active' : ''}" onclick="selectTask(${i})">
-                <span class="badge">${t.areas.length}</span>
+                <span class="badge">${t.areas.length} обл.</span>
                 <b>${t.q}</b> = ${t.a}
                 <span class="del" onclick="tasks.splice(${i},1); activeIdx=-1; updateList(); draw(); event.stopPropagation();">✖</span>
             </div>
@@ -176,7 +172,7 @@
         activeIdx = i;
         points = [];
         document.getElementById('areaControls').style.display = 'block';
-        document.getElementById('activeTaskTitle').innerText = "Задача: " + tasks[i].q;
+        document.getElementById('activeTaskTitle').innerText = "Выбрано: " + tasks[i].q;
         document.getElementById('taskColor').value = tasks[i].color;
         updateList();
         draw();
@@ -193,11 +189,11 @@
         let h = '';
         if(points.length > 0) {
             h += `<polyline points="${points.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="yellow" stroke-width="4" />`;
-            points.forEach(p => h += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="red" />`);
+            points.forEach(p => h += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="red" />`);
         }
         tasks.forEach((t, i) => {
             t.areas.forEach(area => {
-                h += `<polygon points="${area.map(p=>p.x+','+p.y).join(' ')}" fill="${t.color}${i===activeIdx?'aa':'55'}" stroke="${t.color}" stroke-width="${i===activeIdx?3:1}" />`;
+                h += `<polygon points="${area.map(p=>p.x+','+p.y).join(' ')}" fill="${t.color}${i===activeIdx?'99':'44'}" stroke="${t.color}" stroke-width="${i===activeIdx?3:1}" />`;
             });
         });
         document.getElementById('mainSvg').innerHTML = h;
@@ -213,8 +209,7 @@
     }
 
     function generateGame() {
-        if(tasks.length === 0 || !currentImgBase64) return alert("Настройте задания и картинку!");
-        
+        if(tasks.length === 0 || !currentImgBase64) return alert("Добавьте задания и выберите картинку!");
         const config = {
             img: currentImgBase64,
             tasks: tasks,
@@ -232,55 +227,49 @@
     <link href="https://fonts.googleapis.com/css2?family=${config.font.replace(/'/g,'').replace(' ','+')}&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
     <style>
-        body { margin: 0; background: transparent; font-family: ${config.font}, sans-serif; height: 100vh; display: grid; grid-template-columns: 38% 62%; overflow: hidden; color: ${config.textColor}; }
-        .sidebar { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: rgba(0,0,0,0.4); }
-        .card { background: rgba(10, 20, 40, 0.9); padding: 40px; border-radius: 30px; border: 3px solid ${config.glow}; box-shadow: 0 0 30px ${config.glow}55; width: 100%; box-sizing: border-box; }
-        .img-area { display: flex; align-items: center; justify-content: center; background: white; }
-        .frame { position: relative; line-height: 0; box-shadow: 0 0 50px rgba(0,0,0,0.3); border: 5px solid ${config.glow}; border-radius: 10px; overflow: hidden; }
-        img { max-width: 100%; max-height: 90vh; display: block; }
+        body { margin: 0; background: transparent; font-family: ${config.font}, sans-serif; height: 100vh; display: grid; grid-template-columns: 35% 65%; overflow: hidden; color: ${config.textColor}; }
+        .ui { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; background: rgba(0,0,0,0.4); text-align:center; }
+        .card { background: rgba(10, 20, 40, 0.95); padding: 35px; border-radius: 30px; border: 3px solid ${config.glow}; box-shadow: 0 0 30px ${config.glow}55; width: 100%; box-sizing: border-box; }
+        .img-side { display: flex; align-items: center; justify-content: center; background: #fff; padding: 20px; }
+        .frame { position: relative; line-height: 0; border: 6px solid ${config.glow}; border-radius: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.2); }
+        img { max-width: 100%; max-height: 85vh; display: block; }
         svg { position: absolute; top:0; left:0; width:100%; height:100%; }
-        input { width: 100%; padding: 18px; margin: 25px 0; border-radius: 15px; border: 2px solid ${config.glow}; background: #000; color: #fff; font-size: 28px; text-align: center; font-family: inherit; }
-        .btn { background: ${config.glow}; color: #000; padding: 18px; border-radius: 15px; cursor: pointer; font-weight: bold; border: 0; font-size: 22px; width: 100%; }
-        .paint-can { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; margin: 20px auto; display: none; cursor: pointer; animation: pulse 1.5s infinite; }
+        input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 15px; border: 2px solid ${config.glow}; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: inherit; }
+        .btn { background: ${config.glow}; color: #000; padding: 18px; border-radius: 15px; cursor: pointer; font-weight: bold; border: 0; font-size: 20px; width: 100%; }
+        .paint-can { width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff; margin: 20px auto; display: none; cursor: pointer; animation: pulse 1.2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .num-label { font-size: 26px; font-weight: 900; fill: #222; cursor: pointer; pointer-events: all; text-shadow: 1px 1px 0 #fff; }
-        polygon { transition: 0.3s; cursor: pointer; }
-        polygon:hover { opacity: 0.8; }
+        .num-label { font-size: 24px; font-weight: 900; fill: #111; pointer-events: none; text-shadow: 1px 1px 0 #fff; }
+        polygon { transition: 0.3s; cursor: pointer; fill: #fff; stroke: #ddd; }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="ui">
         <div class="card" id="gameCard">
-            <div id="qText" style="font-size: 40px; margin-bottom: 15px;"></div>
+            <div id="qText" style="font-size: 38px; min-height: 50px;"></div>
             <input type="text" id="ansInp" placeholder="ОТВЕТ...">
             <button class="btn" onclick="check()">ПРОВЕРИТЬ</button>
             <div id="paintBox" class="paint-can" onclick="pickPaint()"></div>
-            <div id="hint" style="margin-top:20px; font-size: 16px; opacity: 0.9;"></div>
+            <div id="hint" style="margin-top:15px; font-size: 14px;"></div>
         </div>
     </div>
-    <div class="img-area">
-        <div class="frame">
-            <img src="${config.img}">
-            <svg id="gameSvg"></svg>
-        </div>
-    </div>
+    <div class="img-side"><div class="frame"><img src="${config.img}"><svg id="gameSvg"></svg></div></div>
     <script>
         const tasks = ${JSON.stringify(config.tasks)};
-        let curIdx = 0, canPaint = false, solved = [];
+        let curIdx = 0, hasPaint = false, solvedIdxs = [];
 
-        function init() {
-            if(curIdx >= tasks.length) { 
-                document.getElementById('gameCard').innerHTML = "<h1 style='font-size:50px'>БРАВО! 🎉</h1><p>Картинка полностью раскрашена!</p>"; 
-                return; 
+        function render() {
+            if(curIdx >= tasks.length) {
+                document.getElementById('gameCard').innerHTML = "<h1>ГОТОВО! 🎉</h1><p>Картинка раскрашена!</p>";
+                return;
             }
             const q = tasks[curIdx];
             const el = document.getElementById('qText');
             if(q.q.includes('\\\\')) katex.render(q.q, el); else el.textContent = q.q;
             document.getElementById('ansInp').value = '';
             document.getElementById('paintBox').style.display = 'none';
-            document.getElementById('hint').textContent = '';
-            canPaint = false;
-            draw();
+            document.getElementById('hint').textContent = 'Решите пример и введите ответ';
+            hasPaint = false;
+            drawSvg();
         }
 
         window.check = () => {
@@ -288,38 +277,39 @@
             if(val === tasks[curIdx].a.toLowerCase()) {
                 document.getElementById('paintBox').style.display = 'block';
                 document.getElementById('paintBox').style.backgroundColor = tasks[curIdx].color;
-                document.getElementById('hint').innerHTML = "<b>ВЕРНО!</b><br>Нажми на краску и кликни на число " + tasks[curIdx].a;
-            } else { alert('Неправильно, попробуй еще раз!'); }
+                document.getElementById('hint').textContent = 'Верно! Кликни на краску, затем на число ' + tasks[curIdx].a;
+            } else { alert('Неверно, попробуй еще раз!'); }
         };
 
-        window.pickPaint = () => { 
-            canPaint = true; 
-            document.getElementById('hint').textContent = "Краска взята! Раскрашивай области с числом " + tasks[curIdx].a; 
-        };
+        window.pickPaint = () => { hasPaint = true; document.getElementById('hint').textContent = 'Краска взята! Нажимай на области с числом ' + tasks[curIdx].a; };
 
-        function draw() {
+        function drawSvg() {
             const svg = document.getElementById('gameSvg');
-            svg.innerHTML = tasks.map((t, tIdx) => {
-                const isSolved = solved.includes(tIdx);
-                return t.areas.map(area => {
-                    const cx = area.reduce((s,p)=>s+p.x,0)/area.length;
-                    const cy = area.reduce((s,p)=>s+p.y,0)/area.length;
-                    return \`
-                        <polygon points="\${area.map(p=>p.x+','+p.y).join(' ')}" fill="\${isSolved ? t.color : '#ffffff'}" stroke="#ddd" onclick="doClick(\${tIdx})" />
-                        \${!isSolved ? \`<text x="\${cx}" y="\${cy}" class="num-label" text-anchor="middle" dominant-baseline="middle" onclick="doClick(\${tIdx})">\${t.a}</text>\` : ''}
-                    \`;
-                }).join('');
-            }).join('');
+            let h = '';
+            tasks.forEach((t, tIdx) => {
+                const isSolved = solvedIdxs.includes(tIdx);
+                t.areas.forEach(pts => {
+                    const cx = pts.reduce((a,b)=>a+b.x,0)/pts.length;
+                    const cy = pts.reduce((a,b)=>a+b.y,0)/pts.length;
+                    h += \`<polygon points="\${pts.map(p=>p.x+','+p.y).join(' ')}" 
+                                  fill="\${isSolved ? t.color : '#fff'}" 
+                                  onclick="clickArea(\${tIdx})"></polygon>\`;
+                    if(!isSolved) {
+                        h += \`<text x="\${cx}" y="\${cy}" class="num-label" text-anchor="middle" dominant-baseline="middle">\${t.a}</text>\`;
+                    }
+                });
+            });
+            svg.innerHTML = h;
         }
 
-        window.doClick = (idx) => {
-            if(canPaint && idx === curIdx) {
-                solved.push(curIdx);
+        window.clickArea = (tIdx) => {
+            if(hasPaint && tIdx === curIdx) {
+                solvedIdxs.push(tIdx);
                 curIdx++;
-                init();
+                render();
             }
         };
-        init();
+        render();
     <\/script>
 </body>
 </html>`;
